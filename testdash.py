@@ -22,7 +22,7 @@ import time
 
 # Step 1: Create a Dash app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-
+server=app.server
 # Step 2: Layout for collecting user information
 user_info_layout = html.Div([
     html.Label('Name'),
