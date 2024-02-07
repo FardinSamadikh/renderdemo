@@ -1,0 +1,8 @@
+dash==2.6.0
+pandas
+numpy
+sklearn
+time
+io
+base64
+plotly
