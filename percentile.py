@@ -17,7 +17,7 @@ np.random.seed(42)  # Set seed for reproducibility
 df_dict = {}
 
 # Generate random data for each region
-regions = ['posterior', 'inferior', 'amygdala', 'postman', 'occipital']
+regions = ['posterior', 'inferior', 'amygdala', 'temporal', 'occipital']
 
 for region in regions:
     # Generate random data for 1000 rows for each region
