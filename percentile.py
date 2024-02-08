@@ -31,7 +31,7 @@ for region, df_region in df_dict.items():
 
 # Initialize Dash app
 app = dash.Dash(__name__)
-
+server=app.server
 # Define layout
 app.layout = html.Div([
     html.H1("Percentile Curves for PVS Values"),
@@ -92,5 +92,5 @@ def update_plot(region, sex, side):
 # Run the app
 if __name__ == '__main__':
 
-    app.run_server(port=8051)
+    app.run_server(debug=False)
 
