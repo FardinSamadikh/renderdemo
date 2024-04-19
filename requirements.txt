@@ -3,3 +3,4 @@ pandas==1.5.3
 numpy==1.23.4
 dash==2.15.0
 plotly==5.9.0
+requests==2.26.0
