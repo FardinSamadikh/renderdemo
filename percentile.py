@@ -1,4 +1,3 @@
-
 """
 INI-IMG lab- Dr.Choupan
 @author: /F 
@@ -9,7 +8,12 @@ import numpy as np
 import requests
 import io
 import os
-
+import dash
+from dash import dcc, html, Input, Output, State
+import plotly.graph_objs as go
+from scipy.interpolate import UnivariateSpline
+import logging
+from directory_selector import get_download_directory  # Import the function
 
 # Read data from GitHub repositories without using a token
 def fetch_data(url):
@@ -27,7 +31,6 @@ HCP_R_url = 'https://raw.githubusercontent.com/FardinSamadikh/Files/main/COMBAT_
 HCP_lh = fetch_data(HCP_L_url)
 HCP_rh = fetch_data(HCP_R_url)
 
-
 HCP_lh.drop(columns=['AGE', 'SEX_M', 'SCANNER', 'SITE'], inplace=True)
 HCP_rh.drop(columns=['SCANNER', 'SITE'], inplace=True)
 
@@ -36,7 +39,6 @@ Merged = pd.merge(HCP_rh, HCP_lh, left_on='ID', right_on='ID', how='left')
 Merged['AGE'] = pd.to_numeric(Merged['AGE'], errors='coerce')
 Merged.sort_values(by='AGE', ascending=True, inplace=True)
 Merged.dropna(subset=['AGE'], inplace=True)
-
 
 Merged.rename(columns={'SEX_M': 'sex'}, inplace=True)
 Merged.rename(columns={'AGE': 'age'}, inplace=True)
@@ -60,38 +62,23 @@ regions_dict = {}
 
 # Iterate through the columns of the Merged dataframe
 for column in Merged.columns:
-    # Check if the column name follows the pattern of left and right regions
     if column.startswith('wm-lh-'):
-        # Extract the region name
         region_name = column[len('wm-lh-'):]  
         print('Im checking '+region_name)
         
-        # Check if the corresponding right region exists
         right_region_column = [col for col in Merged.columns if 'wm-rh-' + region_name in col]
         
-        # If list is not empty, right region column exists
         if right_region_column:  
-            # Create a new DataFrame containing the left and right regions with the same name
             region_df = Merged[['ID', 'sex', 'age', column, right_region_column[0]]]
-            # Rename the columns
             region_df.columns = ['ID', 'sex', 'age', 'left_region', 'right_region']
-            # Store the DataFrame in the dictionary
             regions_dict[region_name] = region_df
         else:
             print('wm-rh-' + region_name+' doesnt find')
 
-#Create an ExcelWriter object to write to a single Excel file
-# with pd.ExcelWriter('regions_data2.xlsx') as writer:
-#     #Iterate over each key-value pair in regions_dict
-#    for region_name, region_df in regions_dict.items():
-#         #Write each DataFrame to a separate sheet in the Excel file
-#        region_df.to_excel(writer, sheet_name=region_name, index=False)
-
-
 # Function to remove outliers using the IQR method
 def remove_outliers(data):
     if len(data) < 2:
-        return data  # Not enough data to compute IQR
+        return data
     Q1 = np.percentile(data, 20)
     Q3 = np.percentile(data, 75)
     IQR = Q3 - Q1
@@ -102,26 +89,22 @@ def remove_outliers(data):
 # Calculate percentiles for each combination of brain region, sex, and PVS value
 percentiles = {}
 for region, df_region in regions_dict.items():
-    for sex in ['F', 'M']:  # Female, Male
+    for sex in ['F', 'M']:
         for side in ['right_region', 'left_region']:
             key = f'{region}_{sex}_{side}'
             percentiles[key] = {}
-            for age in range(8, 85):  # Ages from 8 to 84
+            for age in range(8, 85):
                 rounded_age = round(age)
                 pvs_values = df_region[(df_region['sex'] == sex) & (df_region['age'].round() == rounded_age)][side]
                 
                 if not pvs_values.empty:
-                    # Remove outliers before calculating percentiles
                     pvs_values_clean = remove_outliers(pvs_values)
                     
                     if len(pvs_values_clean) > 0:
-                        # Calculate percentiles
                         percentiles[key][age] = np.percentile(pvs_values_clean, [5,25, 50, 75, 90])
                     else:
-                        # If all values are outliers, set to None
                         percentiles[key][age] = None
                 else:
-                    # If no exact match for age, interpolate based on adjacent ages
                     ages = sorted(df_region[df_region['sex'] == sex]['age'].round().unique())
                     if ages:
                         if rounded_age < min(ages):
@@ -142,32 +125,18 @@ for region, df_region in regions_dict.items():
                             prev_percentile = percentiles[key].get(prev_age, None)
                             next_percentile = percentiles[key].get(next_age, None)
                             if prev_percentile is not None and next_percentile is not None:
-                                # Linear interpolation between adjacent percentiles
                                 interpolated_percentile = np.interp(rounded_age, [prev_age, next_age], [prev_percentile, next_percentile])
                                 percentiles[key][age] = interpolated_percentile
                             else:
-                                # If adjacent percentiles are not available, use the nearest one
                                 if prev_percentile is None:
                                     percentiles[key][age] = next_percentile
                                 else:
                                     percentiles[key][age] = prev_percentile
                     else:
                         percentiles[key][age] = None
-# HTML 
-import dash
-from dash import dcc, html, Input, Output, State
-import pandas as pd
-import numpy as np
-import plotly.graph_objs as go
-from scipy.interpolate import UnivariateSpline
-import subprocess
-import logging
-import os
 
 # Initialize Dash app
 app = dash.Dash(__name__)
-
-# Access the underlying Flask server instance
 server = app.server
 
 # Define layout
@@ -223,8 +192,7 @@ app.layout = html.Div([
 def open_directory_selector(n_clicks):
     if n_clicks:
         try:
-            output = subprocess.check_output(['python', 'directory_selector.py'])
-            download_directory = output.decode().strip()
+            download_directory = get_download_directory()  # Use the imported function
             return download_directory
         except Exception as e:
             print(f"Error: {e}")
@@ -305,7 +273,7 @@ def update_plot(region, sex, side):
 
     layout = go.Layout(
         title=f'Percentile Curves for {region.capitalize()} Region - {sex} - {side.capitalize()} PVS Values',
-        xaxis=dict(title='Age', range=[8, 85], tick0=8, dtick=5),  # Start ticks at 8 with a step of 5
+        xaxis=dict(title='Age', range=[8, 85], tick0=8, dtick=5),
         yaxis=dict(title='PVS Volume fraction value'),
         hovermode='closest',
         legend=dict(orientation='h', x=0, y=-0.2)
