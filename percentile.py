@@ -12,7 +12,7 @@ import os
 
 # Read data from GitHub repositories
 def fetch_data(url):
-    github_pat = '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'
+    github_pat = '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'
     headers = {"Authorization": f"token {github_pat}"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
@@ -26,8 +26,8 @@ HCP_R_url= 'https://raw.githubusercontent.com/FardinSamadikh/content/main/COMBAT
 
 # Read Dataset
 
-HCP_lh = pd.read_csv('/Users/fardinsamadi/Desktop/visualization/COMBAT_pvs-vf-regions_adj.lh_02272023.csv')
-HCP_rh = pd.read_csv('/Users/fardinsamadi/Desktop/visualization/COMBAT_pvs-vf-regions_adj.rh_02272023.csv')
+HCP_lh = fetch_data(HCP_L_url)
+HCP_rh = fetch_data(HCP_R_url)
 
 
 HCP_lh.drop(columns=['AGE', 'SEX_M', 'SCANNER', 'SITE'], inplace=True)
