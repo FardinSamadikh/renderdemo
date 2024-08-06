@@ -10,9 +10,10 @@ import requests
 import io
 import os
 
+
 # Read data from GitHub repositories
 def fetch_data(url):
-    github_pat = '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'
+    github_pat = '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'
     headers = {"Authorization": f"token {github_pat}"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
@@ -21,8 +22,8 @@ def fetch_data(url):
         print("Failed to retrieve data:", response.status_code)
 
 # URLs for data
-HCP_L_url= 'https://raw.githubusercontent.com/FardinSamadikh/content/main/COMBAT_pvs-vf-regions_adj.lh_02272023.csv'
-HCP_R_url= 'https://raw.githubusercontent.com/FardinSamadikh/content/main/COMBAT_pvs-vf-regions_adj.rh_02272023.csv'
+HCP_L_url= 'https://raw.githubusercontent.com/FardinSamadikh/Files/main/COMBAT_pvs-vf-regions_adj.lh_02272023.csv'
+HCP_R_url= 'https://raw.githubusercontent.com/FardinSamadikh/Files/main/COMBAT_pvs-vf-regions_adj.rh_02272023.csv'
 
 # Read Dataset
 
