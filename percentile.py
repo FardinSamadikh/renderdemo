@@ -13,7 +13,7 @@ import os
 
 # Read data from GitHub repositories
 def fetch_data(url):
-    github_pat = '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'
+    github_pat = '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'
     headers = {"Authorization": f"token {github_pat}"}
     response = requests.get(url, headers=headers)
     if response.status_code == 200:
