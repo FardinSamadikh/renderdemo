@@ -11,22 +11,19 @@ import io
 import os
 
 
-# Read data from GitHub repositories
+# Read data from GitHub repositories without using a token
 def fetch_data(url):
-    github_pat = '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'
-    headers = {"Authorization": f"token {github_pat}"}
-    response = requests.get(url, headers=headers)
+    response = requests.get(url)
     if response.status_code == 200:
         return pd.read_csv(io.StringIO(response.text))
     else:
         print("Failed to retrieve data:", response.status_code)
 
 # URLs for data
-HCP_L_url= 'https://raw.githubusercontent.com/FardinSamadikh/Files/main/COMBAT_pvs-vf-regions_adj.lh_02272023.csv'
-HCP_R_url= 'https://raw.githubusercontent.com/FardinSamadikh/Files/main/COMBAT_pvs-vf-regions_adj.rh_02272023.csv'
+HCP_L_url = 'https://raw.githubusercontent.com/FardinSamadikh/Files/main/COMBAT_pvs-vf-regions_adj.lh_02272023.csv'
+HCP_R_url = 'https://raw.githubusercontent.com/FardinSamadikh/Files/main/COMBAT_pvs-vf-regions_adj.rh_02272023.csv'
 
 # Read Dataset
-
 HCP_lh = fetch_data(HCP_L_url)
 HCP_rh = fetch_data(HCP_R_url)
 
