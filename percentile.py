@@ -81,11 +81,11 @@ for column in Merged.columns:
             print('wm-rh-' + region_name+' doesnt find')
 
 #Create an ExcelWriter object to write to a single Excel file
-with pd.ExcelWriter('regions_data2.xlsx') as writer:
-    #Iterate over each key-value pair in regions_dict
-   for region_name, region_df in regions_dict.items():
-        #Write each DataFrame to a separate sheet in the Excel file
-       region_df.to_excel(writer, sheet_name=region_name, index=False)
+# with pd.ExcelWriter('regions_data2.xlsx') as writer:
+#     #Iterate over each key-value pair in regions_dict
+#    for region_name, region_df in regions_dict.items():
+#         #Write each DataFrame to a separate sheet in the Excel file
+#        region_df.to_excel(writer, sheet_name=region_name, index=False)
 
 
 # Function to remove outliers using the IQR method
