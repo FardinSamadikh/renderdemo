@@ -167,6 +167,9 @@ import os
 # Initialize Dash app
 app = dash.Dash(__name__)
 
+# Access the underlying Flask server instance
+server = app.server
+
 # Define layout
 app.layout = html.Div([
     html.H1("Percentile Curves for PVS Values"),
