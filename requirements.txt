@@ -5,4 +5,3 @@ dash==2.15.0
 plotly==5.9.0
 requests==2.26.0
 scipy==1.10.1
-tk==0.1.0
